@@ -1,30 +1,22 @@
 import sqlite3
+import os
+print("Current working directory:", os.getcwd())
+print("Files in this directory:", os.listdir())
 
-# Connect to SQLite database (or create it)
-conn = sqlite3.connect('products.db')
-cursor = conn.cursor()
 
-# Create the 'products' table
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS products (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        price REAL NOT NULL,
-        description TEXT
-    )
-''')
+connection = sqlite3.connect('database.db')
 
-# Insert sample products
-products = [
-    ('Shampoo', 120.50, 'Cleans and softens hair'),
-    ('Toothpaste', 75.00, 'Minty fresh toothpaste'),
-    ('Face Wash', 150.00, 'Oil control face wash'),
-    ('Body Lotion', 230.00, 'Moisturizing body lotion')
-]
+with open('schema.sql') as f:
+    connection.executescript(f.read())
 
-cursor.executemany('INSERT INTO products (name, price, description) VALUES (?, ?, ?)', products)
+cur = connection.cursor()
 
-conn.commit()
-conn.close()
+# ✅ Adding sample data
+cur.execute("INSERT INTO bills (customer_name, month, amount) VALUES (?, ?, ?)",
+            ('Alice', 'July', 1200.0))
 
-print("✅ Database initialized with sample products.")
+cur.execute("INSERT INTO bills (customer_name, month, amount) VALUES (?, ?, ?)",
+            ('Bob', 'June', 950.0))
+
+connection.commit()
+connection.close()
